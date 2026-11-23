@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#17251f" />
+<title>헬스PT | 운동·식단 관리</title>
+<style>
+  :root {
+    --bg: #f4f7f5;
+    --surface: #ffffff;
+    --surface-2: #edf3ef;
+    --ink: #18231e;
+    --muted: #68776f;
+    --line: #dfe8e2;
+    --green: #237653;
+    --green-dark: #172b22;
+    --green-soft: #e2f2e9;
+    --lime: #b8e2c8;
+    --orange: #bd7433;
+    --red: #ba514d;
+    --shadow: 0 12px 36px rgba(24, 48, 35, .07);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif; line-height: 1.55; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+  .topbar { position: sticky; top: 0; z-index: 50; background: rgba(23, 43, 34, .96); color: #fff; backdrop-filter: blur(12px); box-shadow: 0 4px 18px rgba(0,0,0,.12); }
+  .topbar-inner { max-width: 1180px; margin: auto; padding: 13px 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; letter-spacing: -.04em; white-space: nowrap; }
+  .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 11px; color: var(--green-dark); background: var(--lime); font-size: 19px; }
+  .brand small { display: block; color: #b8c9bf; font-size: 9px; font-weight: 650; letter-spacing: .13em; margin-top: -3px; }
+  nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex: 0 0 auto; color: #d7e3dc; font-size: 13px; padding: 9px 11px; border-radius: 9px; }
+  nav a:hover, nav a:focus { color: #fff; background: rgba(255,255,255,.11); }
+  .wrap { max-width: 1180px; margin: auto; padding: 0 22px; }
+  .hero { margin-top: 25px; min-height: 265px; border-radius: 25px; overflow: hidden; position: relative; display: flex; align-items: center; background: radial-gradient(circle at 80% 20%, rgba(131,190,153,.28), transparent 27%), linear-gradient(120deg, #172b22 0%, #244d39 58%, #347453 100%); color: #fff; box-shadow: var(--shadow); }
+  .hero::after { content: "FIT  /  RECORD  /  GROW"; position: absolute; right: 4%; bottom: 18px; color: rgba(255,255,255,.16); font-size: clamp(18px, 4vw, 36px); font-weight: 900; letter-spacing: .1em; }
+  .hero-content { padding: 42px clamp(24px, 5vw, 62px); position: relative; z-index: 1; max-width: 740px; }
+  .eyebrow { color: #bce6ca; font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+  h1 { margin: 13px 0 10px; font-size: clamp(34px, 5vw, 57px); line-height: 1.12; letter-spacing: -.055em; }
+  .hero p { color: #e0eee5; max-width: 560px; margin: 0; font-size: 16px; }
+  .hero-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:25px; }
+  .btn { border: 0; border-radius: 11px; padding: 11px 16px; font-weight: 750; font-size: 13px; transition: transform .15s, opacity .15s, background .15s; display: inline-flex; align-items:center; justify-content:center; gap:7px; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--green); color:#fff; }
+  .btn-primary:hover { background:#1b6243; }
+  .btn-light { background:#fff; color:var(--green-dark); }
+  .btn-soft { background:var(--green-soft); color:var(--green-dark); }
+  .btn-ghost { background:transparent; color:var(--green); border:1px solid var(--line); }
+  .btn-danger { background:#fff0ef; color:var(--red); }
+  .btn-small { padding:7px 10px; font-size:12px; border-radius:9px; }
+  .section { padding: 48px 0 8px; }
+  .section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:18px; }
+  .section-kicker { color:var(--green); font-size:11px; font-weight:850; letter-spacing:.14em; }
+  h2 { margin:4px 0 0; font-size:clamp(24px, 3vw, 32px); letter-spacing:-.045em; line-height:1.2; }
+  .section-desc { color:var(--muted); margin:8px 0 0; font-size:14px; }
+  .panel { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+  .panel-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .panel-title h3 { margin:0; font-size:17px; letter-spacing:-.03em; }
+  .panel-title p { margin:3px 0 0; color:var(--muted); font-size:12px; }
+  .grid { display:grid; gap:16px; }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .grid-4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .field-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+  .field { min-width:0; }
+  label { display:block; font-size:12px; color:#45564c; font-weight:750; margin-bottom:6px; }
+  input, select { width:100%; min-width:0; color:var(--ink); background:#fbfdfb; border:1px solid #d9e4dc; border-radius:10px; padding:11px 12px; outline:none; }
+  input:focus, select:focus { border-color:#5eaa7d; box-shadow:0 0 0 3px rgba(65,150,99,.12); }
+  input::placeholder { color:#a1aca5; }
+  .input-unit { position:relative; }
+  .input-unit input { padding-right:44px; }
+  .input-unit span { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#89958d; font-size:12px; pointer-events:none; }
+  .form-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+  .hint { color:var(--muted); font-size:12px; margin:10px 0 0; }
+  .notice { padding:12px 14px; border-radius:11px; background:#f0f7f2; color:#456151; font-size:12px; margin-top:14px; }
+  .metric { background:linear-gradient(145deg,#fff,#f5faf6); border:1px solid var(--line); border-radius:15px; padding:17px; min-width:0; }
+  .metric-label { color:var(--muted); font-size:12px; font-weight:700; }
+  .metric-value { font-size:clamp(23px,3vw,30px); font-weight:850; letter-spacing:-.05em; margin:5px 0 1px; overflow-wrap:anywhere; }
+  .metric-sub { color:#8a968f; font-size:11px; }
+  .metric.good .metric-value { color:var(--green); }
+  .metric.warn .metric-value { color:var(--orange); }
+  .tag { display:inline-flex; align-items:center; padding:5px 9px; border-radius:999px; background:var(--green-soft); color:var(--green); font-size:11px; font-weight:800; }
+  .tag.neutral { background:#eef1ef; color:#66736b; }
+  .tag.warn { background:#fff2e6; color:#a6652d; }
+  .result-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:16px; }
+  .recommend-list { display:grid; gap:10px; }
+  .recommend-item { display:flex; align-items:flex-start; gap:11px; padding:12px; border:1px solid var(--line); border-radius:12px; background:#fcfdfc; }
+  .recommend-icon { flex:0 0 33px; width:33px; height:33px; border-radius:10px; display:grid; place-items:center; background:var(--green-soft); color:var(--green); font-weight:900; }
+  .recommend-item strong { display:block; font-size:13px; }
+  .recommend-item span { display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+  .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+  table { width:100%; border-collapse:collapse; min-width:620px; font-size:12px; }
+  th,td { padding:11px 12px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { background:#f3f7f4; color:#5d6c62; font-size:11px; font-weight:800; }
+  tr:last-child td { border-bottom:0; }
+  td.num, th.num { text-align:right; }
+  .empty { padding:22px; text-align:center; color:#89958d; font-size:13px; }
+  .form-split { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .form-card { background:#fbfdfb; border:1px solid var(--line); border-radius:14px; padding:16px; }
+  .form-card h4 { margin:0 0 13px; font-size:14px; }
+  .form-card .field-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+  .log-list { display:grid; gap:10px; }
+  .log-item { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px 13px; border:1px solid var(--line); border-radius:12px; }
+  .log-main { min-width:0; }
+  .log-main strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+  .log-main small { display:block; color:var(--muted); font-size:11px; margin-top:3px; }
+  .log-actions { display:flex; gap:5px; flex:0 0 auto; }
+  .period-tools { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .segmented { display:flex; gap:3px; padding:4px; background:#e9f0eb; border-radius:11px; }
+  .segmented button { border:0; background:transparent; padding:8px 13px; border-radius:8px; color:#607067; font-size:12px; font-weight:750; }
+  .segmented button.active { background:#fff; color:var(--green); box-shadow:0 2px 7px rgba(20,50,30,.08); }
+  .compare { display:flex; align-items:center; gap:7px; font-size:11px; margin-top:5px; color:var(--muted); }
+  .up { color:var(--green); font-weight:850; }
+  .down { color:var(--red); font-weight:850; }
+  .flat { color:#758078; font-weight:850; }
+  .chart { display:flex; align-items:flex-end; gap:8px; height:190px; padding:12px 5px 0; border-bottom:1px solid var(--line); }
+  .bar-slot { flex:1; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:7px; }
+  .bar-value { color:#68776f; font-size:10px; white-space:nowrap; }
+  .bar { width:min(100%,40px); min-height:3px; background:linear-gradient(180deg,#67b988,#237653); border-radius:7px 7px 2px 2px; transition:height .3s; }
+  .bar-label { font-size:10px; color:#839087; white-space:nowrap; }
+  .chart-legend { display:flex; justify-content:space-between; margin-top:9px; color:var(--muted); font-size:11px; }
+  .feedback { padding:15px; border-radius:13px; background:#eff7f1; border:1px solid #d8eadf; color:#365744; font-size:13px; }
+  .feedback strong { display:block; margin-bottom:5px; }
+  .subsection { margin-top:16px; }
+  .subsection h4 { margin:0 0 10px; font-size:14px; }
+  .guide-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+  .guide-card { background:#fff; border:1px solid var(--line); border-radius:13px; padding:15px; }
+  .guide-card b { display:block; font-size:13px; margin-bottom:5px; }
+  .guide-card p { color:var(--muted); font-size:12px; margin:0; }
+  footer { margin-top:55px; background:#172b22; color:#e5eee8; padding:29px 22px; }
+  .footer-inner { max-width:1180px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  .footer-inner p { margin:4px 0 0; color:#afc1b5; font-size:11px; }
+  .toast { position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); opacity:0; pointer-events:none; background:#1b2e24; color:#fff; padding:11px 16px; border-radius:10px; box-shadow:var(--shadow); z-index:100; font-size:13px; transition:all .25s; max-width:calc(100% - 30px); text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .muted { color:var(--muted); }
+  .right { text-align:right; }
+  .hidden { display:none !important; }
+  @media (max-width:900px) {
+    .field-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .grid-4 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .result-grid { grid-template-columns:1fr; }
+    .guide-grid { grid-template-columns:1fr 1fr; }
+    .topbar-inner { align-items:flex-start; flex-direction:column; gap:8px; }
+    nav { width:100%; }
+  }
+  @media (max-width:620px) {
+    .wrap { padding:0 14px; }
+    .topbar-inner { padding:10px 14px; }
+    .hero { margin-top:14px; min-height:250px; border-radius:18px; }
+    .hero-content { padding:28px 22px; }
+    .hero p { font-size:14px; }
+    .section { padding-top:36px; }
+    .panel { padding:16px; }
+    .section-head { align-items:flex-start; flex-direction:column; gap:10px; }
+    .grid-2,.grid-3,.form-split { grid-template-columns:1fr; }
+    .grid-4 { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .field-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .form-card .field-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .metric { padding:13px; }
+    .metric-value { font-size:23px; }
+    .guide-grid { grid-template-columns:1fr; }
+    .period-tools { align-items:flex-start; flex-direction:column; }
+    .period-tools input { max-width:100%; }
+    .log-item { align-items:flex-start; flex-direction:column; }
+    .log-actions { width:100%; }
+    .log-actions button { flex:1; }
+    .hero-actions .btn { flex:1; }
+    .chart { gap:4px; height:160px; }
+    .bar-label { font-size:9px; }
+  }
+
+  /* Neumorphism theme: applied to the existing 헬스PT interface */
+  :root {
+    --ism-color-1: #E0E5EC;
+    --ism-color-2: #FFFFFF;
+    --ism-color-3: #A3B1C6;
+    --ism-color-4: #6D7F99;
+    --ism-color-background: #FFFFFF;
+    --ism-color-foreground: #6D7F99;
+    --ism-color-accent: #A3B1C6;
+    --ism-color-surface: #F3F5F7;
+    --ism-color-muted: #BDC5D1;
+    --ism-color-border: #DFE3E9;
+    --ism-gutter: 24px;
+    --ism-space-min: 28px;
+    --ism-space-max: 28px;
+    --ism-page-margin: 32px;
+    --ism-line-height: 1.5;
+    --ism-letter-spacing: 0px;
+    --ism-motion-duration: 200ms;
+    --ism-motion-easing: ease-in-out;
+
+    --bg: var(--ism-color-1);
+    --surface: var(--ism-color-1);
+    --surface-2: var(--ism-color-surface);
+    --ink: #46566d;
+    --muted: var(--ism-color-4);
+    --line: var(--ism-color-border);
+    --green: #6D7F99;
+    --green-dark: #52647d;
+    --green-soft: #e8edf3;
+    --lime: #ffffff;
+    --orange: #a87945;
+    --red: #ad6262;
+    --shadow: 8px 8px 18px rgba(163,177,198,.48), -8px -8px 18px rgba(255,255,255,.92);
+    --radius: 18px;
+  }
+  body { background:var(--ism-color-1); color:var(--ism-color-foreground); line-height:var(--ism-line-height); letter-spacing:var(--ism-letter-spacing); }
+  .topbar { background:rgba(224,229,236,.94); color:#52647d; box-shadow:0 5px 14px rgba(163,177,198,.42), 0 -3px 10px rgba(255,255,255,.8); border-bottom:1px solid rgba(255,255,255,.65); }
+  .brand-mark { color:#52647d; background:var(--ism-color-1); box-shadow:inset 3px 3px 6px rgba(163,177,198,.45), inset -3px -3px 6px #fff; }
+  .brand small, nav a { color:#6D7F99; }
+  nav a:hover, nav a:focus { color:#46566d; background:#e0e5ec; box-shadow:inset 3px 3px 6px rgba(163,177,198,.48), inset -3px -3px 6px #fff; }
+  .hero { background:linear-gradient(145deg,#e8edf3,#d9e0e9); color:#46566d; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.7); }
+  .hero::after { color:rgba(109,127,153,.16); }
+  .eyebrow { color:#6D7F99; }
+  .hero p { color:#6D7F99; }
+  .btn { transition:transform var(--ism-motion-duration) var(--ism-motion-easing), box-shadow var(--ism-motion-duration) var(--ism-motion-easing), background var(--ism-motion-duration) var(--ism-motion-easing); }
+  .btn-primary { background:#6D7F99; color:#fff; box-shadow:4px 4px 9px rgba(163,177,198,.55), -3px -3px 8px rgba(255,255,255,.65); }
+  .btn-primary:hover { background:#60738e; }
+  .btn-light, .btn-soft, .btn-ghost { background:var(--ism-color-1); color:#596b84; box-shadow:4px 4px 9px rgba(163,177,198,.48), -4px -4px 9px rgba(255,255,255,.9); border:0; }
+  .btn-danger { background:#e7dfe0; color:#ad6262; box-shadow:4px 4px 9px rgba(163,177,198,.4), -4px -4px 9px #fff; }
+  .panel, .metric, .form-card, .guide-card { background:var(--ism-color-1); border:1px solid rgba(255,255,255,.72); box-shadow:var(--shadow); }
+  .panel { border-radius:var(--radius); }
+  .metric { background:linear-gradient(145deg,#e8edf3,#dce2ea); }
+  .metric.good .metric-value, .tag { color:#5d7695; }
+  .tag { background:#e0e5ec; box-shadow:inset 2px 2px 4px rgba(163,177,198,.35), inset -2px -2px 4px #fff; }
+  .tag.neutral { background:#e0e5ec; color:#6D7F99; }
+  .tag.warn { background:#eee7df; color:#a87945; }
+  input, select { background:#e0e5ec; color:#46566d; border:1px solid rgba(255,255,255,.7); box-shadow:inset 4px 4px 8px rgba(163,177,198,.42), inset -4px -4px 8px rgba(255,255,255,.95); }
+  input:focus, select:focus { border-color:#a3b1c6; box-shadow:inset 3px 3px 6px rgba(163,177,198,.35), inset -3px -3px 6px #fff, 0 0 0 2px rgba(163,177,198,.2); }
+  input::placeholder { color:#9aa8ba; }
+  label { color:#596b84; }
+  .notice, .feedback { background:#e7ecf2; border:1px solid rgba(255,255,255,.8); color:#596b84; box-shadow:inset 3px 3px 6px rgba(163,177,198,.22), inset -3px -3px 6px rgba(255,255,255,.8); }
+  .recommend-item, .log-item { background:#e0e5ec; border:1px solid rgba(255,255,255,.75); box-shadow:4px 4px 9px rgba(163,177,198,.28), -4px -4px 9px rgba(255,255,255,.8); }
+  .recommend-icon { background:#e0e5ec; color:#6D7F99; box-shadow:inset 2px 2px 4px rgba(163,177,198,.35), inset -2px -2px 4px #fff; }
+  .table-wrap { border:1px solid rgba(255,255,255,.85); box-shadow:inset 3px 3px 6px rgba(163,177,198,.25), inset -3px -3px 6px #fff; }
+  th { background:#e5eaf0; color:#596b84; }
+  td { color:#596b84; }
+  th,td { border-bottom-color:#d4dce6; }
+  .segmented { background:#e0e5ec; box-shadow:inset 3px 3px 6px rgba(163,177,198,.4), inset -3px -3px 6px #fff; }
+  .segmented button { color:#6D7F99; }
+  .segmented button.active { background:#e0e5ec; color:#52647d; box-shadow:3px 3px 6px rgba(163,177,198,.42), -3px -3px 6px #fff; }
+  .bar { background:linear-gradient(180deg,#a3b1c6,#6d7f99); }
+  .bar-value, .bar-label { color:#6D7F99; }
+  .chart { border-bottom-color:#cbd4df; }
+  footer { background:#d9e0e9; color:#52647d; box-shadow:0 -5px 16px rgba(163,177,198,.25); border-top:1px solid rgba(255,255,255,.8); }
+  .footer-inner p { color:#6D7F99; }
+  .toast { background:#6D7F99; color:#fff; box-shadow:5px 5px 12px rgba(109,127,153,.3), -3px -3px 8px rgba(255,255,255,.7); }
+  .empty { color:#8493a8; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior:auto !important; transition-duration:0.01ms !important; animation-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#home" aria-label="맨 위로">
+      <span class="brand-mark">↗</span>
+      <span>헬스PT<small>MY FITNESS MANAGEMENT</small></span>
+    </a>
+    <nav aria-label="주요 메뉴">
+      <a href="#profile">내 정보</a>
+      <a href="#recommend">운동·식단 추천</a>
+      <a href="#logs">기록하기</a>
+      <a href="#analysis">성장 분석</a>
+      <a href="#guide">이용 안내</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="home">
+  <section class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">FIT · RECORD · GROW</div>
+      <h1>헬스PT</h1>
+      <p>운동은 기록하고, 성장은 데이터로 확인하세요.<br>나에게 맞는 운동과 식단부터 수행 능력 분석까지 한곳에서 관리합니다.</p>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="#profile">나의 운동 목표 설정하기 →</a>
+        <a class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="#guide">이용 방법 보기</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="profile">
+    <div class="section-head">
+      <div><div class="section-kicker">01 / MY PROFILE</div><h2>나의 신체 정보 및 목표</h2><p class="section-desc">기본 정보를 입력하면 기초대사량과 하루 권장 섭취량을 추정합니다.</p></div>
+      <span class="tag">처음 한 번 설정</span>
+    </div>
+    <div class="panel">
+      <form id="profileForm">
+        <div class="field-grid">
+          <div class="field"><label for="sex">성별</label><select id="sex" required><option value="male">남성</option><option value="female">여성</option></select></div>
+          <div class="field"><label for="age">나이</label><div class="input-unit"><input id="age" type="number" min="15" max="100" value="26" required><span>세</span></div></div>
+          <div class="field"><label for="height">키</label><div class="input-unit"><input id="height" type="number" min="100" max="230" step="0.1" value="175" required><span>cm</span></div></div>
+          <div class="field"><label for="weight">현재 몸무게</label><div class="input-unit"><input id="weight" type="number" min="30" max="300" step="0.1" value="75" required><span>kg</span></div></div>
+          <div class="field"><label for="experience">운동 경력</label><select id="experience"><option value="초보">초보 (6개월 미만)</option><option value="중급">중급 (6개월~2년)</option><option value="고급">고급 (2년 이상)</option></select></div>
+          <div class="field"><label for="goal">운동 목적</label><select id="goal"><option value="muscle">근육 증가</option><option value="fat">체지방 감량</option><option value="maintain">체력 유지</option></select></div>
+          <div class="field"><label for="frequency">주당 운동 가능 횟수</label><select id="frequency"><option value="2">주 2회</option><option value="3" selected>주 3회</option><option value="4">주 4회</option><option value="5">주 5회</option><option value="6">주 6회 이상</option></select></div>
+          <div class="field"><label for="activity">평소 활동량</label><select id="activity"><option value="1.2">낮음 (주로 앉아서 생활)</option><option value="1.375" selected>보통 (가벼운 활동)</option><option value="1.55">중간 (주 3~5회 운동)</option><option value="1.725">높음 (활동적인 생활)</option><option value="1.9">매우 높음 (육체노동 등)</option></select></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">내 정보 저장하고 목표 계산하기</button><button class="btn btn-ghost" type="button" id="profileReset">입력 초기화</button></div>
+      </form>
+      <div class="notice">계산값은 일반적인 추정치입니다. 실제 에너지 소비량과 필요한 영양소는 체성분, 건강 상태, 생활 습관에 따라 달라질 수 있습니다.</div>
+    </div>
+  </section>
+
+  <section class="section" id="recommend">
+    <div class="section-head"><div><div class="section-kicker">02 / PERSONAL PLAN</div><h2>나만의 운동·식단 계획</h2><p class="section-desc">저장한 신체 정보와 목표를 바탕으로 추천안을 확인하세요.</p></div><span class="tag" id="planStatus">정보 입력 대기</span></div>
+    <div class="result-grid">
+      <div class="panel">
+        <div class="panel-title"><div><h3>하루 에너지 및 영양 목표</h3><p>기초대사량과 활동량을 이용한 추정치</p></div><span class="tag">KCAL / G</span></div>
+        <div class="grid grid-2" id="nutritionMetrics">
+          <div class="metric"><div class="metric-label">기초대사량 (BMR)</div><div class="metric-value" id="bmrValue">—</div><div class="metric-sub">휴식 상태의 에너지 소비 추정</div></div>
+          <div class="metric"><div class="metric-label">하루 유지 칼로리</div><div class="metric-value" id="tdeeValue">—</div><div class="metric-sub">활동량 반영 추정치</div></div>
+          <div class="metric good"><div class="metric-label">목표 섭취 칼로리</div><div class="metric-value" id="calorieValue">—</div><div class="metric-sub">선택한 운동 목적 반영</div></div>
+          <div class="metric"><div class="metric-label">체질량지수 (BMI)</div><div class="metric-value" id="bmiValue">—</div><div class="metric-sub" id="bmiSub">참고용 지표</div></div>
+        </div>
+        <div class="grid grid-3" style="margin-top:12px" id="macroMetrics">
+          <div class="metric"><div class="metric-label">단백질</div><div class="metric-value" id="proteinValue">—</div><div class="metric-sub">하루 목표</div></div>
+          <div class="metric"><div class="metric-label">탄수화물</div><div class="metric-value" id="carbValue">—</div><div class="metric-sub">하루 목표</div></div>
+          <div class="metric"><div class="metric-label">지방</div><div class="metric-value" id="fatValue">—</div><div class="metric-sub">하루 목표</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><div><h3>추천 운동 루틴</h3><p id="routineCaption">신체 정보 저장 후 맞춤 루틴이 표시됩니다.</p></div><span class="tag">WORKOUT</span></div>
+        <div id="workoutPlan" class="recommend-list"><div class="empty">먼저 왼쪽에서 신체 정보와 운동 목적을 저장해 주세요.</div></div>
+      </div>
+      <div class="panel" style="grid-column:1/-1">
+        <div class="panel-title"><div><h3>식단 구성 예시</h3><p>목표 영양소를 맞추기 위한 식품 예시입니다. 섭취량은 개인 목표에 맞게 조절하세요.</p></div><span class="tag">MEAL PLAN</span></div>
+        <div class="grid grid-3" id="mealPlan">
+          <div class="recommend-item"><div class="recommend-icon">아</div><div><strong>아침</strong><span>그릭요거트, 계란, 과일 등 단백질 식품을 포함해 보세요.</span></div></div>
+          <div class="recommend-item"><div class="recommend-icon">점</div><div><strong>점심</strong><span>밥 또는 통곡물과 살코기, 채소를 균형 있게 구성하세요.</span></div></div>
+          <div class="recommend-item"><div class="recommend-icon">저</div><div><strong>저녁</strong><span>생선·두부·닭고기 등 단백질과 다양한 채소를 활용하세요.</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="logs">
+    <div class="section-head"><div><div class="section-kicker">03 / DAILY LOG</div><h2>운동과 식단 기록하기</h2><p class="section-desc">매일 한 운동과 먹은 음식을 기록하세요. 기록은 이 브라우저에 저장됩니다.</p></div><span class="tag">자동 저장</span></div>
+    <div class="form-split">
+      <div class="panel">
+        <div class="panel-title"><div><h3>운동 기록</h3><p>세트 수 × 반복 횟수 × 중량으로 볼륨을 계산합니다.</p></div><span class="tag">KG</span></div>
+        <form id="workoutForm" class="form-card">
+          <input type="hidden" id="workoutEditId">
+          <div class="field-grid">
+            <div class="field"><label for="workoutDate">운동 날짜</label><input id="workoutDate" type="date" required></div>
+            <div class="field"><label for="bodyPart">운동 부위</label><select id="bodyPart"><option>가슴</option><option>등</option><option>하체</option><option>어깨</option><option>팔</option><option>복근</option><option>유산소</option><option>기타</option></select></div>
+            <div class="field" style="grid-column:1/-1"><label for="exerciseName">운동명</label><input id="exerciseName" type="text" placeholder="예: 벤치프레스" maxlength="50" required></div>
+            <div class="field"><label for="sets">세트 수</label><input id="sets" type="number" min="1" max="30" value="4" required></div>
+            <div class="field"><label for="reps">세트당 반복 횟수</label><input id="reps" type="number" min="1" max="200" value="10" required></div>
+            <div class="field"><label for="load">세트당 중량 (kg)</label><input id="load" type="number" min="0" max="1000" step="0.25" value="40" required></div>
+            <div class="field"><label for="effort">체감 강도</label><select id="effort"><option value="easy">여유 있음</option><option value="moderate" selected>적당함</option><option value="hard">힘들었음</option></select></div>
+          </div>
+          <div class="form-actions"><button class="btn btn-primary" type="submit" id="workoutSubmit">운동 기록 저장</button><button class="btn btn-ghost hidden" type="button" id="workoutCancel">수정 취소</button></div>
+          <p class="hint">볼륨 = 세트 수 × 반복 횟수 × 중량. 덤벨은 입력한 중량 기준을 매번 동일하게 유지하세요.</p>
+        </form>
+        <div class="subsection"><h4>최근 운동 기록</h4><div id="workoutList" class="log-list"><div class="empty">아직 저장된 운동 기록이 없습니다.</div></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><div><h3>식단 기록</h3><p>먹은 음식의 칼로리와 영양소를 입력합니다.</p></div><span class="tag">NUTRITION</span></div>
+        <form id="mealForm" class="form-card">
+          <input type="hidden" id="mealEditId">
+          <div class="field-grid">
+            <div class="field"><label for="mealDate">섭취 날짜</label><input id="mealDate" type="date" required></div>
+            <div class="field"><label for="mealType">식사 구분</label><select id="mealType"><option>아침</option><option>점심</option><option>저녁</option><option>간식</option></select></div>
+            <div class="field" style="grid-column:1/-1"><label for="foodName">음식명</label><input id="foodName" type="text" placeholder="예: 닭가슴살과 현미밥" maxlength="70" required></div>
+            <div class="field"><label for="foodCalories">칼로리 (kcal)</label><input id="foodCalories" type="number" min="0" max="10000" step="1" placeholder="350" required></div>
+            <div class="field"><label for="foodProtein">단백질 (g)</label><input id="foodProtein" type="number" min="0" max="1000" step="0.1" placeholder="30" required></div>
+            <div class="field"><label for="foodCarbs">탄수화물 (g)</label><input id="foodCarbs" type="number" min="0" max="1000" step="0.1" placeholder="45" required></div>
+            <div class="field"><label for="foodFat">지방 (g)</label><input id="foodFat" type="number" min="0" max="1000" step="0.1" placeholder="8" required></div>
+          </div>
+          <div class="form-actions"><button class="btn btn-primary" type="submit" id="mealSubmit">식단 기록 저장</button><button class="btn btn-ghost hidden" type="button" id="mealCancel">수정 취소</button></div>
+          <p class="hint">영양 정보는 제품 표시사항이나 신뢰할 수 있는 식품 영양정보를 기준으로 입력하세요.</p>
+        </form>
+        <div class="subsection"><h4>최근 식단 기록</h4><div id="mealList" class="log-list"><div class="empty">아직 저장된 식단 기록이 없습니다.</div></div></div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-title"><div><h3>체중 변화 기록</h3><p>체중을 주기적으로 입력하면 변화 추이를 함께 확인할 수 있습니다.</p></div><span class="tag">BODY WEIGHT</span></div>
+      <form id="weightForm" class="form-card" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+        <div class="field" style="flex:1 1 180px"><label for="weightDate">측정 날짜</label><input id="weightDate" type="date" required></div>
+        <div class="field" style="flex:1 1 180px"><label for="weightEntry">몸무게 (kg)</label><input id="weightEntry" type="number" min="20" max="400" step="0.1" placeholder="75.0" required></div>
+        <button class="btn btn-primary" type="submit">체중 기록 저장</button>
+      </form>
+      <div class="subsection"><div id="weightList" class="log-list"><div class="empty">아직 저장된 체중 기록이 없습니다.</div></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="analysis">
+    <div class="section-head"><div><div class="section-kicker">04 / PROGRESS ANALYSIS</div><h2>나의 성장 분석</h2><p class="section-desc">기간을 선택해 운동량, 식단, 체중을 이전 기간과 비교합니다.</p></div></div>
+    <div class="panel">
+      <div class="period-tools">
+        <div class="segmented" role="group" aria-label="분석 기간">
+          <button type="button" data-period="day">일간</button><button type="button" class="active" data-period="week">주간</button><button type="button" data-period="month">월간</button>
+        </div>
+        <div class="field" style="min-width:180px"><label for="analysisDate">기준 날짜</label><input id="analysisDate" type="date"></div>
+        <button class="btn btn-soft btn-small" id="refreshAnalysis" type="button">분석 새로고침</button>
+      </div>
+      <p class="hint" id="periodLabel">선택한 주와 직전 주를 비교합니다.</p>
+      <div class="grid grid-4" style="margin-top:17px">
+        <div class="metric"><div class="metric-label">총 운동 볼륨</div><div class="metric-value" id="statVolume">0kg</div><div class="compare" id="compareVolume">비교 기록 없음</div></div>
+        <div class="metric"><div class="metric-label">운동한 날짜</div><div class="metric-value" id="statSessions">0일</div><div class="compare" id="compareSessions">비교 기록 없음</div></div>
+        <div class="metric"><div class="metric-label">섭취 칼로리 합계</div><div class="metric-value" id="statCalories">0</div><div class="compare" id="compareCalories">비교 기록 없음</div></div>
+        <div class="metric"><div class="metric-label">단백질 섭취 합계</div><div class="metric-value" id="statProtein">0g</div><div class="compare" id="compareProtein">비교 기록 없음</div></div>
+      </div>
+      <div class="result-grid" style="margin-top:17px">
+        <div class="panel" style="box-shadow:none">
+          <div class="panel-title"><div><h3>운동 볼륨 추이</h3><p>선택 기간 내 날짜 또는 주차별 볼륨</p></div></div>
+          <div id="volumeChart" class="chart"><div class="empty" style="width:100%">운동 기록을 저장하면 그래프가 표시됩니다.</div></div>
+          <div class="chart-legend"><span>운동 볼륨 (kg)</span><span id="chartPeriodText">선택 기간</span></div>
+        </div>
+        <div class="panel" style="box-shadow:none">
+          <div class="panel-title"><div><h3>기간 비교 및 코칭</h3><p>기록 데이터에 근거한 간단한 피드백</p></div></div>
+          <div class="grid grid-2">
+            <div class="metric"><div class="metric-label">이전 기간 볼륨</div><div class="metric-value" id="previousVolume">0kg</div></div>
+            <div class="metric"><div class="metric-label">현재 기간 볼륨</div><div class="metric-value" id="currentVolume">0kg</div></div>
+          </div>
+          <div class="feedback" id="feedbackBox" style="margin-top:12px"><strong>기록을 시작해 보세요.</strong>운동 기록이 쌓이면 이전 기간과 비교해 변화 내용을 안내합니다.</div>
+          <div class="subsection"><h4>체중 변화</h4><div id="weightComparison" class="muted" style="font-size:13px">체중 기록을 입력하면 변화량을 표시합니다.</div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="panel-title"><div><h3>운동별 수행 능력 비교</h3><p>같은 운동 이름을 기준으로 이전 기간과 현재 기간의 총 볼륨을 비교합니다.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>운동명</th><th class="num">이전 볼륨</th><th class="num">현재 볼륨</th><th class="num">변화율</th><th>분석</th></tr></thead><tbody id="exerciseCompareBody"><tr><td colspan="5" class="empty">운동 기록이 쌓이면 비교 결과가 표시됩니다.</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="guide">
+    <div class="section-head"><div><div class="section-kicker">05 / GUIDE</div><h2>이용 안내 및 계산 기준</h2><p class="section-desc">서비스를 정확하게 활용하기 위해 아래 내용을 확인하세요.</p></div></div>
+    <div class="guide-grid">
+      <div class="guide-card"><b>① 기본 정보 입력</b><p>성별, 나이, 키, 몸무게, 활동량과 운동 목적을 입력하면 BMR과 권장 섭취량을 추정합니다.</p></div>
+      <div class="guide-card"><b>② 운동·식단 추천 확인</b><p>운동 경력과 주당 운동 가능 횟수에 따라 기본 루틴을 확인하고 개인 상황에 맞게 조정합니다.</p></div>
+      <div class="guide-card"><b>③ 매일 기록하기</b><p>운동별 세트·횟수·중량과 식사별 영양 정보를 기록합니다. 기록을 수정하거나 삭제할 수 있습니다.</p></div>
+      <div class="guide-card"><b>④ 성장 분석 확인</b><p>일간·주간·월간으로 운동 볼륨과 식단 섭취량을 비교합니다. 비교는 동일한 길이의 직전 기간을 기준으로 합니다.</p></div>
+      <div class="guide-card"><b>⑤ 데이터 저장과 백업</b><p>기록은 현재 브라우저의 저장 공간에 보관됩니다. 다른 기기와 자동 동기화되지 않으므로 백업 파일을 보관하세요.</p></div>
+      <div class="guide-card"><b>⑥ 건강 관련 주의</b><p>계산값과 추천은 참고용입니다. 통증이나 질환, 특별한 식이 제한이 있다면 전문가와 상의하세요.</p></div>
+    </div>
+    <div class="panel" style="margin-top:15px">
+      <div class="panel-title"><div><h3>내 데이터 백업 및 관리</h3><p>브라우저를 바꾸거나 기록을 옮길 때 백업 파일을 사용하세요.</p></div></div>
+      <div class="form-actions" style="margin-top:0">
+        <button class="btn btn-primary" type="button" id="exportCsv">전체 기록 CSV 다운로드</button>
+        <button class="btn btn-soft" type="button" id="exportJson">전체 데이터 백업</button>
+        <label class="btn btn-ghost" for="importJson" style="margin:0;cursor:pointer">백업 파일 불러오기</label><input class="hidden" id="importJson" type="file" accept="application/json,.json">
+        <button class="btn btn-danger" type="button" id="clearAll">모든 기록 초기화</button>
+      </div>
+      <p class="hint">CSV는 엑셀 등에서 열 수 있는 형식입니다. 백업 파일(JSON)은 이 서비스에서 다시 불러올 수 있습니다. 초기화는 되돌릴 수 없으니 먼저 백업하세요.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div><strong>헬스PT</strong><p>작은 기록이 만드는 큰 변화.</p></div>
+    <p>운동 및 식단 관리를 위한 참고용 서비스 · Copyright © 2026</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  const STORAGE_KEY = 'hellini_to_hellchang_v1';
+  const $ = (id) => document.getElementById(id);
+  const today = localDateString(new Date());
+  let state = { profile: null, workouts: [], meals: [], weights: [] };
+  let period = 'week';
+  let toastTimer;
+
+  function localDateString(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  function parseDate(value) {
+    const parts = String(value || '').split('-').map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return new Date();
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  function dateAdd(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+  function fmt(value, digits = 0) { return Number(value || 0).toLocaleString('ko-KR', { maximumFractionDigits: digits, minimumFractionDigits: 0 }); }
+  function num(id) { return Number($(id).value); }
+  function uid() { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`; }
+  function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+  function showToast(message) {
+    const el = $('toast'); el.textContent = message; el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+  function persist() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (err) { showToast('저장 공간이 부족합니다. 데이터를 CSV 또는 JSON으로 백업해 주세요.'); }
+  }
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        state = {
+          profile: saved.profile || null,
+          workouts: Array.isArray(saved.workouts) ? saved.workouts : [],
+          meals: Array.isArray(saved.meals) ? saved.meals : [],
+          weights: Array.isArray(saved.weights) ? saved.weights : []
+        };
+      }
+    } catch (err) { state = { profile: null, workouts: [], meals: [], weights: [] }; }
+  }
+  function goalName(goal) { return goal === 'muscle' ? '근육 증가' : goal === 'fat' ? '체지방 감량' : '체력 유지'; }
+  function calculateProfile(p) {
+    const base = 10 * p.weight + 6.25 * p.height - 5 * p.age + (p.sex === 'male' ? 5 : -161);
+    const tdee = base * p.activity;
+    const targetCalories = tdee + (p.goal === 'muscle' ? 200 : p.goal === 'fat' ? -300 : 0);
+    const proteinFactor = p.goal === 'muscle' ? 1.8 : p.goal === 'fat' ? 1.8 : 1.5;
+    const protein = p.weight * proteinFactor;
+    const fat = p.weight * 0.8;
+    const carbs = Math.max(0, (targetCalories - protein * 4 - fat * 9) / 4);
+    const bmi = p.weight / Math.pow(p.height / 100, 2);
+    const bmiText = bmi < 18.5 ? '저체중 범위' : bmi < 23 ? '정상 범위' : bmi < 25 ? '비만 전 단계 범위' : bmi < 30 ? '비만 범위' : '고도 비만 범위';
+    return { bmr: base, tdee, targetCalories, protein, carbs, fat, bmi, bmiText };
+  }
+  function renderProfile() {
+    const p = state.profile;
+    if (!p) return;
+    $('sex').value = p.sex; $('age').value = p.age; $('height').value = p.height; $('weight').value = p.weight;
+    $('experience').value = p.experience; $('goal').value = p.goal; $('frequency').value = p.frequency; $('activity').value = String(p.activity);
+    renderRecommendations();
+  }
+  function renderRecommendations() {
+    const p = state.profile;
+    if (!p) return;
+    const c = calculateProfile(p);
+    $('planStatus').textContent = goalName(p.goal) + ' 기준';
+    $('bmrValue').textContent = `${fmt(c.bmr)} kcal`;
+    $('tdeeValue').textContent = `${fmt(c.tdee)} kcal`;
+    $('calorieValue').textContent = `${fmt(c.targetCalories)} kcal`;
+    $('bmiValue').textContent = c.bmi.toFixed(1);
+    $('bmiSub').textContent = c.bmiText + ' · 참고용';
+    $('proteinValue').textContent = `${fmt(c.protein)}g`;
+    $('carbValue').textContent = `${fmt(c.carbs)}g`;
+    $('fatValue').textContent = `${fmt(c.fat)}g`;
+    $('routineCaption').textContent = `${p.experience} · 주 ${p.frequency}회 · ${goalName(p.goal)}`;
+    const plans = getRoutine(p);
+    $('workoutPlan').innerHTML = plans.map((item, i) => `<div class="recommend-item"><div class="recommend-icon">${i + 1}</div><div><strong>${escapeHtml(item.day)} · ${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div></div>`).join('');
+    const mealText = p.goal === 'muscle'
+      ? [['아침','계란·그릭요거트·오트밀 등으로 단백질과 에너지를 충분히 챙겨보세요.'],['점심','밥과 닭고기·살코기·두부, 채소를 함께 구성하세요.'],['저녁','생선·소고기·두부와 탄수화물 식품을 운동량에 맞게 배분하세요.']]
+      : p.goal === 'fat'
+      ? [['아침','계란·무가당 요거트와 과일 등 포만감 있는 식품을 선택하세요.'],['점심','살코기나 두부, 채소를 충분히 곁들이고 밥 양을 조절하세요.'],['저녁','생선·닭고기·콩류와 채소를 중심으로 균형 있게 구성하세요.']]
+      : [['아침','계란·요거트·통곡물 등으로 균형 잡힌 식사를 시작하세요.'],['점심','밥, 단백질 식품, 채소를 골고루 구성하세요.'],['저녁','생선·두부·살코기와 다양한 채소를 활용하세요.']];
+    $('mealPlan').innerHTML = mealText.map((x,i) => `<div class="recommend-item"><div class="recommend-icon">${['아','점','저'][i]}</div><div><strong>${x[0]}</strong><span>${x[1]}</span></div></div>`).join('');
+  }
+  function getRoutine(p) {
+    const sets = p.goal === 'muscle' ? '3~4세트 · 6~12회' : p.goal === 'fat' ? '2~3세트 · 8~15회' : '2~3세트 · 10~15회';
+    const rest = p.goal === 'muscle' ? '세트 사이 90~150초 휴식' : '세트 사이 60~90초 휴식';
+    const beginner = p.experience === '초보';
+    if (Number(p.frequency) <= 2) return [
+      {day:'1일차',title:'전신 A',detail:`스쿼트 · 푸시업/벤치프레스 · 랫풀다운 · 플랭크 / ${sets}`},
+      {day:'2일차',title:'전신 B',detail:`루마니안 데드리프트 · 숄더프레스 · 시티드로우 · 런지 / ${sets}`},
+      {day:'공통',title:'운동 원칙',detail:`준비운동 후 정확한 자세로 수행하고 ${rest}.`}
+    ];
+    if (Number(p.frequency) === 3) return [
+      {day:'월요일',title:'전신 A',detail:`스쿼트 · 벤치프레스 · 랫풀다운 · 코어 / ${sets}`},
+      {day:'수요일',title:'전신 B',detail:`루마니안 데드리프트 · 숄더프레스 · 시티드로우 / ${sets}`},
+      {day:'금요일',title:'전신 C',detail:`레그프레스 · 인클라인프레스 · 풀다운 · 팔 운동 / ${sets}`}
+    ];
+    if (Number(p.frequency) === 4) return [
+      {day:'월요일',title:'상체 A',detail:`벤치프레스 · 로우 · 숄더프레스 · 팔 운동 / ${sets}`},
+      {day:'화요일',title:'하체 A',detail:`스쿼트 · 레그컬 · 런지 · 카프레이즈 / ${sets}`},
+      {day:'목요일',title:'상체 B',detail:`인클라인프레스 · 랫풀다운 · 레터럴레이즈 / ${sets}`},
+      {day:'금요일',title:'하체 B',detail:`데드리프트 변형 · 레그프레스 · 힙 운동 / ${sets}`}
+    ];
+    return [
+      {day:'월요일',title:'푸시',detail:`가슴 · 어깨 · 삼두 중심 / ${sets}`},
+      {day:'화요일',title:'풀',detail:`등 · 후면 어깨 · 이두 중심 / ${sets}`},
+      {day:'수요일',title:'하체',detail:`대퇴사두 · 햄스트링 · 둔근 중심 / ${sets}`},
+      {day:'목요일',title:'휴식 또는 가벼운 유산소',detail:'피로도에 맞춰 회복에 집중하세요.'},
+      {day:'금요일',title:'상체 보완',detail:`가슴 · 등 · 어깨 약점 보완 / ${sets}`},
+      {day:'토요일',title:'하체·코어 또는 휴식',detail:'회복 상태에 따라 운동량을 조절하세요.'}
+    ];
+  }
+  function getPeriodRange(dateStr, type) {
+    const d = parseDate(dateStr);
+    if (type === 'day') return { start:d, end:d, label:dateStr };
+    if (type === 'week') {
+      const start = dateAdd(d, -((d.getDay() + 6) % 7));
+      const end = dateAdd(start, 6);
+      return { start, end, label:`${localDateString(start)} ~ ${localDateString(end)}` };
+    }
+    const start = new Date(d.getFullYear(), d.getMonth(), 1);
+    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    return { start, end, label:`${d.getFullYear()}년 ${d.getMonth()+1}월` };
+  }
+  function previousRange(range, type) {
+    if (type === 'day') { const d = dateAdd(range.start,-1); return {start:d,end:d}; }
+    if (type === 'week') return {start:dateAdd(range.start,-7),end:dateAdd(range.end,-7)};
+    const d = new Date(range.start.getFullYear(), range.start.getMonth()-1, 1);
+    return {start:d,end:new Date(d.getFullYear(),d.getMonth()+1,0)};
+  }
+  function inRange(dateStr, range) {
+    const d = parseDate(dateStr); const start = new Date(range.start.getFullYear(),range.start.getMonth(),range.start.getDate());
+    const end = new Date(range.end.getFullYear(),range.end.getMonth(),range.end.getDate());
+    return d >= start && d <= end;
+  }
+  function sum(list, key) { return list.reduce((total, item) => total + Number(item[key] || 0), 0); }
+  function getPeriodData(range) {
+    const workouts = state.workouts.filter(x => inRange(x.date, range));
+    const meals = state.meals.filter(x => inRange(x.date, range));
+    const weights = state.weights.filter(x => inRange(x.date, range)).sort((a,b) => a.date.localeCompare(b.date));
+    return {
+      workouts, meals, weights,
+      volume: sum(workouts,'volume'), reps: workouts.reduce((n,x)=>n + x.sets*x.reps,0),
+      sessions: new Set(workouts.map(x=>x.date)).size,
+      calories: sum(meals,'calories'), protein: sum(meals,'protein'),
+      carbs: sum(meals,'carbs'), fat: sum(meals,'fat')
+    };
+  }
+  function compareMarkup(current, previous, unit='') {
+    if (!previous) return '<span class="flat">이전 기록 없음</span>';
+    if (previous === 0) return current === 0 ? '<span class="flat">변화 없음</span>' : '<span class="up">기록 시작</span>';
+    const diff = ((current - previous) / previous) * 100;
+    const klass = diff > 0.1 ? 'up' : diff < -0.1 ? 'down' : 'flat';
+    const sign = diff > 0.1 ? '+' : '';
+    return `<span class="${klass}">${sign}${diff.toFixed(1)}%</span><span>${unit ? `(${sign}${fmt(current-previous,1)}${unit})` : ''}</span>`;
+  }
+  function renderAnalysis() {
+    const date = $('analysisDate').value || today;
+    const range = getPeriodRange(date, period);
+    const prev = previousRange(range, period);
+    const cur = getPeriodData(range); const old = getPeriodData(prev);
+    $('periodLabel').textContent = `${range.label} 기준 · 직전 동일 기간(${localDateString(prev.start)} ~ ${localDateString(prev.end)})과 비교`;
+    $('chartPeriodText').textContent = period === 'day' ? '하루' : period === 'week' ? '요일별' : '주차별';
+    $('statVolume').textContent = `${fmt(cur.volume)}kg`;
+    $('statSessions').textContent = `${cur.sessions}일`;
+    $('statCalories').textContent = `${fmt(cur.calories)} kcal`;
+    $('statProtein').textContent = `${fmt(cur.protein,1)}g`;
+    $('compareVolume').innerHTML = compareMarkup(cur.volume,old.volume,'kg');
+    $('compareSessions').innerHTML = compareMarkup(cur.sessions,old.sessions,'일');
+    $('compareCalories').innerHTML = compareMarkup(cur.calories,old.calories,'kcal');
+    $('compareProtein').innerHTML = compareMarkup(cur.protein,old.protein,'g');
+    $('previousVolume').textContent = `${fmt(old.volume)}kg`;
+    $('currentVolume').textContent = `${fmt(cur.volume)}kg`;
+    renderChart(range, cur.workouts);
+    renderExerciseCompare(cur.workouts, old.workouts);
+    renderFeedback(cur,old,range);
+    renderWeightComparison(cur,old);
+  }
+  function renderChart(range, workouts) {
+    const groups = [];
+    if (period === 'day') groups.push({label:'오늘',start:range.start,end:range.end});
+    else if (period === 'week') {
+      ['월','화','수','목','금','토','일'].forEach((label,i)=>{const d=dateAdd(range.start,i);groups.push({label,start:d,end:d});});
+    } else {
+      const totalDays = range.end.getDate();
+      for(let i=0;i<totalDays;i+=7){const s=dateAdd(range.start,i);const e=dateAdd(range.start,Math.min(i+6,totalDays-1));groups.push({label:`${Math.floor(i/7)+1}주`,start:s,end:e});}
+    }
+    const vals = groups.map(g=>workouts.filter(w=>inRange(w.date,g)).reduce((n,w)=>n+w.volume,0));
+    const max = Math.max(...vals,1);
+    if (!workouts.length) { $('volumeChart').innerHTML = '<div class="empty" style="width:100%">선택 기간에 운동 기록이 없습니다.</div>'; return; }
+    $('volumeChart').innerHTML = groups.map((g,i)=>`<div class="bar-slot"><span class="bar-value">${vals[i] ? fmt(vals[i]) : ''}</span><div class="bar" style="height:${Math.max(vals[i] ? 5 : 1, vals[i]/max*78)}%" title="${escapeHtml(g.label)}: ${fmt(vals[i])}kg"></div><span class="bar-label">${g.label}</span></div>`).join('');
+  }
+  function renderExerciseCompare(current, previous) {
+    const names = [...new Set([...current.map(x=>x.name),...previous.map(x=>x.name)])].sort((a,b)=>a.localeCompare(b,'ko'));
+    if (!names.length) { $('exerciseCompareBody').innerHTML = '<tr><td colspan="5" class="empty">운동 기록이 쌓이면 비교 결과가 표시됩니다.</td></tr>'; return; }
+    $('exerciseCompareBody').innerHTML = names.map(name=>{
+      const now = current.filter(x=>x.name===name).reduce((n,x)=>n+x.volume,0);
+      const before = previous.filter(x=>x.name===name).reduce((n,x)=>n+x.volume,0);
+      let status = '변화 없음'; let change = '—'; let cls = 'flat';
+      if (!before && now) {status='이번 기간 신규';change='신규';cls='up';}
+      else if (before && now) {const pct=(now-before)/before*100;change=`${pct>0?'+':''}${pct.toFixed(1)}%`;status=pct>0.1?'볼륨 증가':pct<-.1?'볼륨 감소':'유사';cls=pct>0.1?'up':pct<-.1?'down':'flat';}
+      else if (before && !now) {status='이번 기간 미기록';change='—';cls='down';}
+      return `<tr><td><strong>${escapeHtml(name)}</strong></td><td class="num">${fmt(before)}kg</td><td class="num">${fmt(now)}kg</td><td class="num ${cls}">${change}</td><td>${status}</td></tr>`;
+    }).join('');
+  }
+  function renderFeedback(cur,old,range) {
+    const box = $('feedbackBox');
+    if (!cur.workouts.length && !cur.meals.length) {
+      box.innerHTML = '<strong>아직 선택 기간의 기록이 없습니다.</strong>운동과 식단을 기록하면 이전 기간과 비교한 피드백이 여기에 표시됩니다.'; return;
+    }
+    const messages = [];
+    if (cur.workouts.length) {
+      if (!old.workouts.length) messages.push('이번 기간에 운동 기록이 쌓이기 시작했습니다. 같은 운동의 수행 상태를 꾸준히 기록해 기준 데이터를 만들어 보세요.');
+      else if (cur.volume > old.volume) messages.push(`총 운동 볼륨이 이전 기간보다 ${fmt(cur.volume-old.volume)}kg 증가했습니다. 중량뿐 아니라 반복 횟수와 운동 강도, 회복 상태도 함께 확인하세요.`);
+      else if (cur.volume < old.volume) messages.push('총 운동 볼륨이 이전 기간보다 낮습니다. 휴식이나 일정 변화 때문일 수 있으니 컨디션과 운동 빈도를 함께 확인하세요.');
+      else messages.push('총 운동 볼륨은 이전 기간과 비슷합니다. 같은 중량에서 반복 횟수나 동작의 안정성이 좋아졌는지도 확인해 보세요.');
+    }
+    if (cur.meals.length && state.profile) {
+      const days = new Set(cur.meals.map(m=>m.date)).size;
+      const avgCal = cur.calories / Math.max(days,1);
+      const target = calculateProfile(state.profile).targetCalories;
+      const delta = avgCal-target;
+      if (Math.abs(delta) <= target*0.1) messages.push(`식단 기록이 있는 날의 평균 섭취 열량은 약 ${fmt(avgCal)}kcal로, 계산된 목표와 비교적 가까운 편입니다.`);
+      else if (delta > 0) messages.push(`식단 기록일 평균 섭취 열량은 약 ${fmt(avgCal)}kcal로 목표보다 높게 나타납니다. 기록 누락 여부와 활동량을 함께 살펴보세요.`);
+      else messages.push(`식단 기록일 평균 섭취 열량은 약 ${fmt(avgCal)}kcal로 목표보다 낮게 나타납니다. 지나친 제한이 되지 않는지 확인하세요.`);
+    }
+    if (!cur.meals.length) messages.push('식단 기록이 없어 섭취량은 평가하지 않았습니다. 식사별 칼로리와 영양소를 입력해 보세요.');
+    box.innerHTML = `<strong>선택 기간 분석 결과</strong>${messages.map(x=>`<p style="margin:6px 0 0">${escapeHtml(x)}</p>`).join('')}<p style="margin:8px 0 0;color:#6d8173;font-size:11px">※ 운동 볼륨 증가는 근력·근육 성장의 확정적 증거가 아닙니다. 기록 조건과 회복 상태를 함께 고려하세요.</p>`;
+  }
+  function renderWeightComparison(cur,old) {
+    const el = $('weightComparison');
+    if (!cur.weights.length && !old.weights.length) {el.textContent='체중 기록을 입력하면 변화량을 표시합니다.';return;}
+    const latest = cur.weights[cur.weights.length-1];
+    const previous = old.weights.length ? old.weights[old.weights.length-1] : null;
+    if (!latest) {el.textContent='현재 기간에는 체중 기록이 없습니다.';return;}
+    if (!previous) {el.textContent=`현재 기간 마지막 측정: ${latest.weight}kg (${latest.date}). 이전 기간의 체중 기록은 없습니다.`;return;}
+    const diff=latest.weight-previous.weight; const sign=diff>0?'+':'';
+    el.innerHTML=`현재 기간 마지막 측정은 <strong>${latest.weight}kg</strong>, 이전 기간 마지막 측정(${previous.date})은 <strong>${previous.weight}kg</strong>입니다. 변화량은 <strong class="${diff<0?'up':diff>0?'down':'flat'}">${sign}${diff.toFixed(1)}kg</strong>입니다.`;
+  }
+  function renderLogs() {
+    const workouts = [...state.workouts].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+    $('workoutList').innerHTML = workouts.length ? workouts.map(w=>`<div class="log-item"><div class="log-main"><strong>${escapeHtml(w.name)} <span class="tag neutral">${escapeHtml(w.part)}</span></strong><small>${w.date} · ${w.sets}세트 × ${w.reps}회 × ${fmt(w.load,2)}kg = <b>${fmt(w.volume)}kg</b> · ${effortLabel(w.effort)}</small></div><div class="log-actions"><button class="btn btn-ghost btn-small" type="button" data-edit-workout="${w.id}">수정</button><button class="btn btn-danger btn-small" type="button" data-delete-workout="${w.id}">삭제</button></div></div>`).join('') : '<div class="empty">아직 저장된 운동 기록이 없습니다.</div>';
+    const meals = [...state.meals].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+    $('mealList').innerHTML = meals.length ? meals.map(m=>`<div class="log-item"><div class="log-main"><strong>${escapeHtml(m.food)} <span class="tag neutral">${escapeHtml(m.type)}</span></strong><small>${m.date} · ${fmt(m.calories)}kcal · 단백질 ${fmt(m.protein,1)}g · 탄수화물 ${fmt(m.carbs,1)}g · 지방 ${fmt(m.fat,1)}g</small></div><div class="log-actions"><button class="btn btn-ghost btn-small" type="button" data-edit-meal="${m.id}">수정</button><button class="btn btn-danger btn-small" type="button" data-delete-meal="${m.id}">삭제</button></div></div>`).join('') : '<div class="empty">아직 저장된 식단 기록이 없습니다.</div>';
+    const weights = [...state.weights].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+    $('weightList').innerHTML = weights.length ? weights.map(w=>`<div class="log-item"><div class="log-main"><strong>${w.weight}kg</strong><small>측정일 ${w.date}</small></div><div class="log-actions"><button class="btn btn-danger btn-small" type="button" data-delete-weight="${w.id}">삭제</button></div></div>`).join('') : '<div class="empty">아직 저장된 체중 기록이 없습니다.</div>';
+  }
+  function effortLabel(v) { return v==='easy'?'여유 있음':v==='hard'?'힘들었음':'적당함'; }
+  function resetWorkoutForm() { $('workoutForm').reset(); $('workoutDate').value=today; $('workoutEditId').value=''; $('workoutSubmit').textContent='운동 기록 저장'; $('workoutCancel').classList.add('hidden'); }
+  function resetMealForm() { $('mealForm').reset(); $('mealDate').value=today; $('mealEditId').value=''; $('mealSubmit').textContent='식단 기록 저장'; $('mealCancel').classList.add('hidden'); }
+  function refreshAll() { renderLogs(); renderAnalysis(); }
+
+  $('profileForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const p={sex:$('sex').value,age:num('age'),height:num('height'),weight:num('weight'),experience:$('experience').value,goal:$('goal').value,frequency:Number($('frequency').value),activity:Number($('activity').value)};
+    if (!p.age || !p.height || !p.weight || p.age<15 || p.height<100 || p.weight<30) {showToast('신체 정보를 올바르게 입력해 주세요.');return;}
+    state.profile=p; persist(); renderRecommendations(); showToast('신체 정보와 맞춤 목표를 저장했습니다.');
+  });
+  $('profileReset').addEventListener('click',()=>{ $('profileForm').reset(); $('age').value=26; $('height').value=175; $('weight').value=75; });
+  $('workoutForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=$('workoutEditId').value;
+    const item={id:id||uid(),date:$('workoutDate').value,part:$('bodyPart').value,name:$('exerciseName').value.trim(),sets:num('sets'),reps:num('reps'),load:num('load'),effort:$('effort').value};
+    if (!item.date || !item.name || item.sets<1 || item.reps<1 || item.load<0) {showToast('운동 기록을 정확히 입력해 주세요.');return;}
+    item.volume=item.sets*item.reps*item.load;
+    if(id) state.workouts=state.workouts.map(x=>x.id===id?item:x); else state.workouts.push(item);
+    persist(); resetWorkoutForm(); refreshAll(); showToast(id?'운동 기록을 수정했습니다.':'운동 기록을 저장했습니다.');
+  });
+  $('mealForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const id=$('mealEditId').value;
+    const item={id:id||uid(),date:$('mealDate').value,type:$('mealType').value,food:$('foodName').value.trim(),calories:num('foodCalories'),protein:num('foodProtein'),carbs:num('foodCarbs'),fat:num('foodFat')};
+    if (!item.date || !item.food || [item.calories,item.protein,item.carbs,item.fat].some(x=>x<0)) {showToast('식단 기록을 정확히 입력해 주세요.');return;}
+    if(id) state.meals=state.meals.map(x=>x.id===id?item:x); else state.meals.push(item);
+    persist(); resetMealForm(); refreshAll(); showToast(id?'식단 기록을 수정했습니다.':'식단 기록을 저장했습니다.');
+  });
+  $('weightForm').addEventListener('submit',e=>{
+    e.preventDefault(); const date=$('weightDate').value; const weight=num('weightEntry');
+    if(!date || weight<20 || weight>400){showToast('측정 날짜와 몸무게를 확인해 주세요.');return;}
+    const existing=state.weights.find(x=>x.date===date);
+    if(existing) existing.weight=weight; else state.weights.push({id:uid(),date,weight});
+    persist(); $('weightEntry').value=''; refreshAll(); showToast('체중 기록을 저장했습니다.');
+  });
+  $('workoutCancel').addEventListener('click',resetWorkoutForm);
+  $('mealCancel').addEventListener('click',resetMealForm);
+  document.addEventListener('click',e=>{
+    const t=e.target;
+    if(t.dataset.editWorkout){const w=state.workouts.find(x=>x.id===t.dataset.editWorkout);if(!w)return;$('workoutEditId').value=w.id;$('workoutDate').value=w.date;$('bodyPart').value=w.part;$('exerciseName').value=w.name;$('sets').value=w.sets;$('reps').value=w.reps;$('load').value=w.load;$('effort').value=w.effort;$('workoutSubmit').textContent='수정 내용 저장';$('workoutCancel').classList.remove('hidden');$('workoutForm').scrollIntoView({behavior:'smooth',block:'center'});}
+    if(t.dataset.deleteWorkout){if(confirm('이 운동 기록을 삭제할까요?')){state.workouts=state.workouts.filter(x=>x.id!==t.dataset.deleteWorkout);persist();refreshAll();showToast('운동 기록을 삭제했습니다.');}}
+    if(t.dataset.editMeal){const m=state.meals.find(x=>x.id===t.dataset.editMeal);if(!m)return;$('mealEditId').value=m.id;$('mealDate').value=m.date;$('mealType').value=m.type;$('foodName').value=m.food;$('foodCalories').value=m.calories;$('foodProtein').value=m.protein;$('foodCarbs').value=m.carbs;$('foodFat').value=m.fat;$('mealSubmit').textContent='수정 내용 저장';$('mealCancel').classList.remove('hidden');$('mealForm').scrollIntoView({behavior:'smooth',block:'center'});}
+    if(t.dataset.deleteMeal){if(confirm('이 식단 기록을 삭제할까요?')){state.meals=state.meals.filter(x=>x.id!==t.dataset.deleteMeal);persist();refreshAll();showToast('식단 기록을 삭제했습니다.');}}
+    if(t.dataset.deleteWeight){if(confirm('이 체중 기록을 삭제할까요?')){state.weights=state.weights.filter(x=>x.id!==t.dataset.deleteWeight);persist();refreshAll();showToast('체중 기록을 삭제했습니다.');}}
+  });
+  document.querySelectorAll('[data-period]').forEach(btn=>btn.addEventListener('click',()=>{period=btn.dataset.period;document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b===btn));renderAnalysis();}));
+  $('analysisDate').addEventListener('change',renderAnalysis);
+  $('refreshAnalysis').addEventListener('click',()=>{renderAnalysis();showToast('분석을 새로고침했습니다.');});
+
+  function download(filename, content, mime) {
+    const blob=new Blob([content],{type:mime}); const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  function csvCell(v) { const s=String(v??''); return '"'+s.replace(/"/g,'""')+'"'; }
+  $('exportCsv').addEventListener('click',()=>{
+    const rows=[['종류','날짜','분류','이름','세트','횟수','중량(kg)','운동볼륨(kg)','칼로리(kcal)','단백질(g)','탄수화물(g)','지방(g)','몸무게(kg)','강도']];
+    state.workouts.forEach(x=>rows.push(['운동',x.date,x.part,x.name,x.sets,x.reps,x.load,x.volume,'','','','', '',effortLabel(x.effort)]));
+    state.meals.forEach(x=>rows.push(['식단',x.date,x.type,x.food,'','','','',x.calories,x.protein,x.carbs,x.fat,'','']));
+    state.weights.forEach(x=>rows.push(['체중',x.date,'','', '', '', '', '', '', '', '', '',x.weight,'']));
+    if(rows.length===1){showToast('내보낼 기록이 없습니다.');return;}
+    const csv='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'); download(`헬스PT_기록_${today}.csv`,csv,'text/csv;charset=utf-8;');
+  });
+  $('exportJson').addEventListener('click',()=>{download(`헬스PT_백업_${today}.json`,JSON.stringify(state,null,2),'application/json;charset=utf-8;');showToast('백업 파일을 만들었습니다.');});
+  $('importJson').addEventListener('change',async e=>{
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    try {
+      const parsed=JSON.parse(await file.text());
+      if(!parsed || !Array.isArray(parsed.workouts)||!Array.isArray(parsed.meals)||!Array.isArray(parsed.weights)) throw new Error('invalid');
+      if(!confirm('현재 저장된 데이터를 백업 파일의 데이터로 교체할까요?')){e.target.value='';return;}
+      state={profile:parsed.profile||null,workouts:parsed.workouts,meals:parsed.meals,weights:parsed.weights};persist();
+      if(state.profile)renderProfile();else $('planStatus').textContent='정보 입력 대기';
+      refreshAll();showToast('백업 데이터를 불러왔습니다.');
+    } catch(err){showToast('올바른 백업 JSON 파일이 아닙니다.');}
+    e.target.value='';
+  });
+  $('clearAll').addEventListener('click',()=>{
+    if(!confirm('프로필, 운동, 식단, 체중 기록을 모두 삭제할까요? 이 작업은 되돌릴 수 없습니다.'))return;
+    state={profile:null,workouts:[],meals:[],weights:[]};persist();
+    $('profileForm').reset();$('planStatus').textContent='정보 입력 대기';
+    ['bmrValue','tdeeValue','calorieValue','bmiValue','proteinValue','carbValue','fatValue'].forEach(id=>$(id).textContent='—');
+    $('bmiSub').textContent='참고용 지표';$('routineCaption').textContent='신체 정보 저장 후 맞춤 루틴이 표시됩니다.';$('workoutPlan').innerHTML='<div class="empty">먼저 신체 정보를 입력해 주세요.</div>';
+    $('mealPlan').innerHTML='<div class="empty">신체 정보 저장 후 식단 예시가 표시됩니다.</div>';
+    refreshAll();showToast('모든 데이터를 초기화했습니다.');
+  });
+
+  // 날짜 입력의 기본값을 오늘로 설정합니다.
+  ['workoutDate','mealDate','weightDate','analysisDate'].forEach(id=>$(id).value=today);
+  load();
+  if(state.profile) renderProfile();
+  renderLogs();
+  renderAnalysis();
+})();
+</script>
+</body>
+</html>
